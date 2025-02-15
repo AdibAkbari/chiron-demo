@@ -1,247 +1,131 @@
 import React, { useState, useEffect, useRef, Suspense } from 'react';
-import Box from '@mui/material/Box';
-import { BrowserRouter, Routes, Route } from "react-router";
+import { Box } from '@mui/material';
+import { HashRouter, Routes, Route } from "react-router";
 import { ThemeProvider } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
 import Navbar from './components/Navbar';
 import MainPage from './pages/MainPage';
 import ScriptBox from "./pages/ScriptBox";
 import themes from './Theme';
-import NutanixBirds from "./nutanixBirds"
-import InstructionPage from "./pages/InstructionPage"
+import NutanixBirds from "./nutanixBirds";
+import InstructionPage from "./pages/InstructionPage";
 import ErrorModal from './components/ErrorModal';
-import Game from "./pages/Game"
+import Game from "./pages/Game";
 import { addKBtoLocalStorage, getAllKBfromLocalStorage, editKBtoLocalStorage } from './utils/localStorage';
-import io from 'socket.io-client';
-import { Typography, CircularProgress, Paper } from '@mui/material';
-import { WifiOff } from 'lucide-react';
-import {
-  PROTOCOL_STATE_IDLE,
-  PROTOCOL_STATE_WAITING_FOR_METADATA,
-  PROTOCOL_STATE_METADATA_RECV,
-  PROTOCOL_STATE_WAITING_FIRST_TOKEN,
-  PROTOCOL_STATE_WAITING_TOKENS,
-  PROTOCOL_STATE_QUEUEING
-} from './utils/protocol'
 
 const VideoBackground = React.lazy(() => import("./components/VideoBackground"));
 
-const API_URL = '/';
+// Mock data for demo
+const DEMO_MODELS = [
+  { display_name: "Llama-3.1-8B-Instruct (FP16)", note: "Decent Quality | Fast"},
+  { display_name: "Llama-3.3-70B-Instruct (FP16)", note: "High Quality | Slow"},
+];
 
-let socket = null;
-const SOCKET_CONNECTING = 0;
-const SOCKET_CONNECTED = 1;
-const SOCKET_ERROR = 2;
-
-const ProgressBar = ({ message }) => {
-  // Extract percentage from messages like "2/2: Pulling llama3.3:70b-instruct-fp16, 11494.35MB / 141117.92MB = 8.15%"
-  const getPercentage = (message) => {
-    if (!message) return null;
-    const match = message.match(/(\d+(\.\d+)?)%/);
-    return match ? parseFloat(match[1]) : null;
-  };
-
-  const percentage = getPercentage(message);
-
-  if (percentage === null) return null;
-
-  return (
-    <Box sx={{ 
-      width: '100%', 
-      mt: 2,
-    }}>
-      <Box sx={{
-        height: '10px',
-        backgroundColor: 'rgba(0, 0, 0, 1)',
-        borderRadius: '10px',
-        overflow: 'hidden'
-      }}>
-        <Box 
-          sx={{
-            height: '100%',
-            backgroundColor: '#7855fb',
-            transition: 'width 300ms ease-in-out',
-            width: `${percentage}%`
-          }}
-        />
-      </Box>
-    </Box>
-  );
+const DEMO_METADATA = {
+  url: "https://portal.nutanix.com/example-kb-123",
+  title: "Example KB Article",
 };
 
+const DEMO_SCRIPT = `Hello! In this video, I'll show you how to use the cvm_shutdown script to safely shutdown or restart a Controller VM, also known as CVM, in your Nutanix environment.
 
-function ConnectionStatus({ status, connectingPrimaryMsg, connectingSecondMsg }) {
-  
-  return (
-    <Box
-      sx={{
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center',
-        minHeight: '60vh',
-      }}
-    >
-      <Paper
-        elevation={0}
-        sx={{
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          gap: 3,
-          padding: '32px',
-          background: 'rgba(4, 4, 4, 0.1)',
-          backdropFilter: 'blur(5px)',
-          borderRadius: '16px',
-          border: '1px solid rgba(255, 255, 255, 0.1)',
-          maxWidth: '540px',
-          width: '100%',
-        }}
-      >
-        {status === SOCKET_CONNECTING ? (
-          <>
-            <CircularProgress 
-              size={48}
-              sx={{
-                color: theme => theme.palette.primary.main
-              }}
-            />
-            <Typography
-              variant="h6"
-              sx={{
-                color: 'text.primary',
-                fontWeight: 500,
-                textAlign: 'center'
-              }}
-            >
-              {connectingPrimaryMsg === null ? "Establishing Connection..." : connectingPrimaryMsg}
-            </Typography>
-            <Typography
-              variant="body2"
-              sx={{
-                color: 'text.secondary',
-                textAlign: 'center'
-              }}
-            >
-              {connectingSecondMsg === null ? "Please wait while we connect to the server" : connectingSecondMsg}
-            </Typography>
-            <ProgressBar message={connectingSecondMsg} />
-          </>
-        ) : (
-          <>
-            <WifiOff 
-              size={48}
-              style={{
-                color: '#7855fb',
-                opacity: 0.9
-              }}
-            />
-            <Typography
-              variant="h6"
-              sx={{
-                color: 'text.primary',
-                fontWeight: 500,
-                textAlign: 'center'
-              }}
-            >
-              Connection Error
-            </Typography>
-            <Typography
-              variant="body2"
-              sx={{
-                color: 'text.secondary',
-                textAlign: 'center'
-              }}
-            >
-              Unable to connect to server. Attempting to reconnect in the background.
-              You can still view previous generations.
-            </Typography>
-            <Box
-              sx={{
-                width: '100%',
-                height: '1px',
-                backgroundColor: 'rgba(255, 255, 255, 0.1)',
-                margin: '4px 0'
-              }}
-            />
-            <Typography
-              variant="subtitle1"
-              sx={{
-                color: 'text.secondary',
-                textAlign: 'center',
-                fontStyle: 'italic',
-                whiteSpace: 'pre-line'
-              }}
-            >
-              {`The link has faltered, but don't fear,
-            Chiron's tools are still quite near.
-            A brief delay, but scripts await,
-            To guide you through and help create.`}
-            </Typography>
-          </>
-        )}
-      </Paper>
-    </Box>
-  );
-}
+...
+
+This script is the recommended way to handle CVM shutdowns, as it properly signals HA and manages storage traffic, making it safer than using regular \`sudo shutdown\` or \`sudo reboot\` commands.
+
+...
+
+Let's go through the steps:
+
+First, log into the CVM as the "nutanix" user.
+
+...
+
+The basic syntax of the command is:
+\`\`\`
+cvm_shutdown [OPTIONS] [TIME] [WALL MESSAGE]
+\`\`\`
+
+For most cases, you'll want to use the -P option for a clean power-off. The most common command is:
+\`\`\`
+nutanix@cvm$ cvm_shutdown -P now
+\`\`\`
+
+...
+
+This will immediately initiate a clean shutdown of the CVM.
+
+...
+
+A few important things to note:
+
+The script automatically puts the CVM into maintenance mode in AOS 5.17.1 and later versions.
+
+If you're running AOS 5.20.1 or later, the script will check for proper HA routes before proceeding. If these routes aren't available, you may need to use the force_reboot option.
+
+...
+
+You can also schedule the shutdown for later using time formats like:
+- "+m" for minutes from now
+- "hh:mm" for a specific time
+
+...
+
+The system will notify logged-in users about the impending shutdown, and you can always cancel the scheduled shutdown using the -c option if needed.
+
+That's all you need to know about using the cvm_shutdown script! Remember to always use this script instead of regular shutdown commands to ensure proper handling of your CVM operations.`;
+
+// Function to simulate token streaming
+const simulateTokenStreaming = (fullText, setText, onComplete) => {
+  let currentIndex = 0;
+  const streamInterval = 50; // Adjust this value to control streaming speed
+
+  const streamNextToken = () => {
+    if (currentIndex < fullText.length) {
+      // Stream a few characters at a time to simulate token streaming
+      const nextChunk = fullText.slice(currentIndex, currentIndex + 3);
+      setText(prev => (prev || "") + nextChunk);
+      currentIndex += 3;
+      setTimeout(streamNextToken, streamInterval);
+    } else {
+      onComplete();
+    }
+  };
+
+  streamNextToken();
+};
 
 function App() {
-  // Technical TODO: this is a lot of global states, better if we use something 
-  // like MobX to manage states.
-
-  const [errorModalOpen, setErrorModalOpen] = React.useState(false);
-  const [errorMessage, setErrorMessage] = React.useState('');
-
-  // This needs to be a global state to disable the navbar during AI generation
-  // Navigating during generation leads to a bunch of weirdness.
+  const [errorModalOpen, setErrorModalOpen] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
+  const [demoWarningOpen, setDemoWarningOpen] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
   const [queuePos, setQueuePos] = useState(-1);
-
   const [brainRot, setBrainRot] = useState(false);
   const [theme, setTheme] = useState(themes.default);
+  const [protState, setProtState] = useState(0);
+  const [metadata, setMetadata] = useState(null);
+  const [scriptText, setScriptText] = useState(null);
+  const [editing, setEditing] = useState(false);
+  const [models] = useState(DEMO_MODELS);
+
   useEffect(() => {
     setTheme(brainRot ? themes.brainrot : themes.default);
   }, [brainRot]);
 
-  // Server connection status.
-  const [connection, setConnection] = useState(SOCKET_CONNECTING);
-  // Connecting message.
-  const [connectingPrimaryMsg, setConectingPrimaryMsg] = useState(null);
-  const [connectingSecondMsg, setConectingSecondMsg] = useState(null);
-
-  // Lists of available LLMs
-  const [models, setModels] = useState(null);
-
-  // State management of the protocol to the backend
-  const [protState, setProtState] = useState(PROTOCOL_STATE_IDLE);
-  const [metadata, setMetadata] = useState(null);
-  const [scriptText, setScriptText] = useState(null);
-
-  // Global state to disable navigation during edit mode
-  const [editing, setEditing] = useState(false);
-
-  // Reference to allow event listeners to always see the latest state consistently
   const metadataRef = useRef(metadata);
   useEffect(() => {
     metadataRef.current = metadata;
   }, [metadata]);
+
   const scriptTextRef = useRef(scriptText);
   useEffect(() => {
     scriptTextRef.current = scriptText;
   }, [scriptText]);
-  const editingRef = useRef(editing);
-  useEffect(() => {
-    editingRef.current = editing;
-  }, [editing]);
-  const protStateRef = useRef(protState);
-  useEffect(() => {
-    protStateRef.current = protState;
-  }, [protState]);
 
   const [savedKbs, setSavedKbs] = useState(getAllKBfromLocalStorage());
   const [selectedKB, setSelectedKB] = useState(null);
   const [selectedKBIndex, setSelectedKBIndex] = useState(null);
-  // Reference to allow event listeners to always see the latest state consistently
-  // Workaround of a crash that happens on autosave at navigate.
+  
   const selectedKBIndexRef = useRef(selectedKBIndex);
   useEffect(() => {
     selectedKBIndexRef.current = selectedKBIndex;
@@ -277,217 +161,46 @@ function App() {
     setSelectedKB(null);
   }
 
-  useEffect(() => {
-    // Open a socket to the server on mount
-    socket = io(API_URL, {
-      transports: ['websocket'],
-    });
-
-    const handleSocketDisconnect = () => {
-      setConnection(SOCKET_ERROR);
-      setIsLoading(false);
-
-      socket.off("metadata");
-      socket.off("tokens");
-      socket.off("complete");
-      socket.off("error");
-      socket.off("queue");
-      socket.off("ready");
-      socket.off("progress");
-      setConectingPrimaryMsg(null);
-      setConectingSecondMsg(null);
-      setProtState(PROTOCOL_STATE_IDLE);
-    }
-
-    socket.on('connect_error', () => {
-      handleSocketDisconnect();
-      console.error("socket connection error...");
-    });
-
-    socket.on('disconnect', () => {
-      handleSocketDisconnect();
-      console.error("socket disconnected...");
-    });
-
-    socket.on('connect', () => {
-      socket.on('progress', (data) => {
-        setConectingPrimaryMsg("Connected to server, but LLMs aren't downloaded. Please leave this tab open.");
-        setConectingSecondMsg(data.message); // this has the full string like this 2/2: Pulling llama3.3:70b-instruct-fp16, 11494.35MB / 141117.92MB = 8.15%
-        setConnection(SOCKET_CONNECTING);
-      });
-
-      socket.on('ready', (data) => {
-        // Refresh the models list
-        socket.on('get_models_return', (data) => {
-          setModels((prev) => { return data; });
-          socket.off('get_models');
-          // Unblock webpage
-          setConnection(SOCKET_CONNECTED);
-          console.log("socket connected!");
-        });
-        socket.emit('get_models');
-      });
-      socket.emit('connect_stage_2')
-    });
-
-    // Put the website back into a consistent state if the user click back or forward during edit or generating script
-    window.addEventListener("popstate", () => {
-      if (editingRef.current) {
-        setErrorMessage("You have clicked the back/forward browser button during edit mode. Your work have been automatically saved.");
-        setErrorModalOpen(true);
-        editKB();
-        setEditing(false);
-      }
-      if (protState != PROTOCOL_STATE_IDLE) {
-        // Disconnect will trigger a clean up of protocol states by the disconnect event listener
-        socket.disconnect();
-        socket.connect();
-      }
-    });
-
-    // Cleanup event listener on unmount
-    return () => {
-      socket.disconnect();
-    };
-  }, []);
-
   const initiateProtocol = (url, fileObj, modelIdx) => {
-    // This function initiate the event driven protocol via
-    // websocket to communicate with the server and stream back the tokens
-    // One of the two first arguments must be null!
-
-    if (protState !== PROTOCOL_STATE_IDLE) {
-      alert("Protocol in inconsistent state! Should never see this message!!");
-      return;
-    }
-
     setMetadata(null);
     setScriptText(null);
     setQueuePos(-1);
 
-    // Make sure all the event listeners are in a clean state.
-    socket.off("metadata");
-    socket.off("tokens");
-    socket.off("complete");
-    socket.off("error");
-    socket.off("queue");
-    socket.off("ready");
-    socket.off("progress");
-    setConectingPrimaryMsg(null);
-    setConectingSecondMsg(null);
+    // Simulate the protocol states with timeouts
+    setTimeout(() => {
+      setProtState(2); // WAITING_FOR_METADATA
+    }, 1000);
 
-    // Prime the event listeners before we initiate the protocol.
-    socket.on("metadata", (data) => {
-      setProtState((prev) => { return PROTOCOL_STATE_METADATA_RECV });
-      setMetadata((prev) => {
-        let resp_metadata = data;
-        if (fileObj === null) {
-          resp_metadata.url = url;
-        } else {
-          resp_metadata.url = null;
-        }
-        return resp_metadata;
+    setTimeout(() => {
+      setProtState(3); // METADATA_RECV
+      setMetadata(DEMO_METADATA);
+    }, 2000);
+
+    setTimeout(() => {
+      setProtState(4); // WAITING_FIRST_TOKEN
+      setScriptText("");
+    }, 2000);
+
+    setTimeout(() => {
+      setProtState(5); // WAITING_TOKENS
+      // Start token streaming simulation
+      simulateTokenStreaming(DEMO_SCRIPT, setScriptText, () => {
+        setProtState(0); // IDLE
+        addKBtoLocalStorage(DEMO_METADATA, DEMO_SCRIPT);
+        const newKbs = getAllKBfromLocalStorage();
+        setSavedKbs(newKbs);
+        viewSavedKB(0, newKbs);
+        setIsLoading(false);
       });
-      setScriptText((prev) => { return "" });
-      setProtState((prev) => { return PROTOCOL_STATE_WAITING_FIRST_TOKEN });
-    });
-
-    // Next step after metadata receive: listen for tokens
-    socket.on("tokens", (data) => {
-      setProtState((prev) => {
-        if (prev === PROTOCOL_STATE_WAITING_FIRST_TOKEN) {
-          // Received first token, time to navigate!
-          return PROTOCOL_STATE_WAITING_TOKENS;
-        } else {
-          return prev;
-        }
-      })
-      setScriptText((prev) => { return prev + data["tokens"]; });
-    });
-
-    // Final step when we get the completion event
-    socket.on("complete", () => {
-      // Clean up the event listeners
-      socket.off("metadata");
-      socket.off("tokens");
-      socket.off("complete");
-      socket.off("error");
-      socket.off("queue");
-      socket.off("ready");
-      socket.off("progress");
-      setConectingPrimaryMsg(null);
-      setConectingSecondMsg(null);
-      setProtState((prev) => { return PROTOCOL_STATE_IDLE; });
-
-      addKBtoLocalStorage(metadataRef.current, scriptTextRef.current);
-
-      const newKbs = getAllKBfromLocalStorage();
-      setSavedKbs(newKbs);
-      // Use the fresh history to update the selected script:
-      viewSavedKB(0, newKbs);
-
-      setIsLoading((prev) => { return false; });
-    });
-
-    socket.on("error", (data) => {
-      setErrorMessage(data.error);
-      setErrorModalOpen(true);
-
-      socket.off("metadata");
-      socket.off("tokens");
-      socket.off("complete");
-      socket.off("error");
-      socket.off("queue");
-      socket.off("ready");
-      socket.off("progress");
-      setConectingPrimaryMsg(null);
-      setConectingSecondMsg(null);
-      setProtState((prev) => { return PROTOCOL_STATE_IDLE; });
-      setIsLoading((prev) => { return false; });
-    })
-
-    // Now this part starts the protocol sequence, we find a place in the queue
-    socket.on("queue", (data) => {
-      console.log("queue pos is ");
-      console.log(data);
-      if (data.queue_pos > 1) {
-        setProtState((prev) => { return PROTOCOL_STATE_QUEUEING; });
-        setQueuePos(data.queue_pos);
-      } else {
-        // Start the protocol sequence.
-        setProtState((prev) => { return PROTOCOL_STATE_WAITING_FOR_METADATA; });
-        if (fileObj === null) {
-          const payload = { url: url, modelIdx: modelIdx };
-          socket.emit("url_generate", payload);
-        } else {
-          const reader = new FileReader();
-          reader.onload = () => {
-            // Get base64 encoded string of the file
-            const fileData = reader.result.split(",")[1];
-            const payload = { filename: fileObj.name, data: fileData, modelIdx: modelIdx };
-            socket.emit("file_generate", payload);
-          };
-          reader.readAsDataURL(fileObj);
-        }
-      }
-    });
-
-    socket.emit("enqueue", {});
+    }, 4000);
   };
 
   return (
-    <BrowserRouter>
+    <HashRouter>
       <ThemeProvider theme={theme}>
         <>
           <CssBaseline />
-          <Box
-            sx={{
-              minHeight: '100vh',
-              position: 'relative',
-              backgroundColor: 'transparent',
-            }}
-          >
-            {/* These appear on all pages */}
+          <Box sx={{ minHeight: '100vh', position: 'relative', backgroundColor: 'transparent' }}>
             <Navbar
               brainRot={brainRot}
               setBrainRot={setBrainRot}
@@ -500,27 +213,23 @@ function App() {
             />
 
             {brainRot ? 
-            <Suspense fallback={<div></div>}>
-              <VideoBackground />
-            </Suspense>
-            : <NutanixBirds />}
+              <Suspense fallback={<div></div>}>
+                <VideoBackground />
+              </Suspense>
+              : <NutanixBirds />
+            }
 
-            {/* Page content */}
-            <Routes className="url-input-container">
+            <Routes>
               <Route path="/" element={
-                connection === SOCKET_CONNECTED ? (
-                  <MainPage
-                    models={models}
-                    brainRot={brainRot}
-                    isLoading={isLoading}
-                    setIsLoading={setIsLoading}
-                    initiateProtocol={initiateProtocol}
-                    protState={protState}
-                    queuePos={queuePos}
-                  />
-                ) : (
-                  <ConnectionStatus status={connection} connectingPrimaryMsg={connectingPrimaryMsg} connectingSecondMsg={connectingSecondMsg} />
-                )
+                <MainPage
+                  models={models}
+                  brainRot={brainRot}
+                  isLoading={isLoading}
+                  setIsLoading={setIsLoading}
+                  initiateProtocol={initiateProtocol}
+                  protState={protState}
+                  queuePos={queuePos}
+                />
               }/>
               <Route path="/result" element={
                 <ScriptBox
@@ -548,9 +257,19 @@ function App() {
             onClose={() => setErrorModalOpen(false)}
             message={errorMessage}
           />
+          <ErrorModal
+            open={demoWarningOpen}
+            isWarning={true}
+            onClose={() => setDemoWarningOpen(false)}
+            message={`This is a DEMO version of the application. 
+              
+              It is not connected to any backend services because we cannot give the public access to the locally hosted LLMs.
+              
+              It uses simulated responses to demonstrate functionality and has a pre-filled example URL.`}
+          />
         </>
       </ThemeProvider>
-    </BrowserRouter>
+    </HashRouter>
   );
 }
 

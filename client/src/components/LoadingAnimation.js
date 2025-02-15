@@ -2,7 +2,7 @@ import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Box, Typography } from '@mui/material';
 import { SyncLoader } from 'react-spinners';
-import brainRotGif from '../assets/brainrot/loading.gif'
+import brainRotGif from '../assets/brainrot/loading.gif';
 import {
   PROTOCOL_STATE_WAITING_FOR_METADATA,
   PROTOCOL_STATE_WAITING_FIRST_TOKEN,
@@ -52,8 +52,6 @@ const LoadingAnimation = ({ brainRot, protState, queuePos }) => {
         return "Scraping your article...";
       case PROTOCOL_STATE_WAITING_FIRST_TOKEN:
         return "Scraped article, piped into LLM, waiting for first token...";
-      case PROTOCOL_STATE_QUEUEING:
-        return "You are " + nthNumber(queuePos) + " in the queue."
       default:
         return "Loading...";
     }

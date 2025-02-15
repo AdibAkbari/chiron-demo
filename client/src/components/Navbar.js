@@ -51,17 +51,14 @@ const Navbar = ({ brainRot, setBrainRot, isLoading, savedKbs, editing, setMetada
   };
 
   function formatDateTime(epochString) {
-    // Convert the epoch string to a Date object
     const date = new Date(parseInt(epochString));
-
-    // Format the date and time (day, abbreviated month, year, and time in HH:mm format)
     const formattedDateTime = new Intl.DateTimeFormat('en-GB', {
-      day: 'numeric',    // Day of the month (e.g., "6")
-      month: 'short',    // Abbreviated month name (e.g., "Feb")
-      year: 'numeric',   // 4-digit year (e.g., "2024")
-      hour: '2-digit',   // 2-digit hour (24-hour format)
-      minute: '2-digit', // 2-digit minute
-      hour12: true      // Use 24-hour format
+      day: 'numeric',
+      month: 'short',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: true
     }).format(date);
 
     return formattedDateTime;
@@ -69,7 +66,9 @@ const Navbar = ({ brainRot, setBrainRot, isLoading, savedKbs, editing, setMetada
 
   return (
     <>
-      <AppBar position='static' color='primary'
+      <AppBar 
+        position='static' 
+        color='primary'
         sx={{
           boxShadow: '0 10px 8px rgba(0, 0, 0, 0.5)',
         }}
@@ -77,10 +76,18 @@ const Navbar = ({ brainRot, setBrainRot, isLoading, savedKbs, editing, setMetada
         <Toolbar
           sx={{
             display: 'flex',
-            justifyContent: 'space-between'
+            justifyContent: 'space-between',
+            padding: {
+              xs: '0 8px',
+              sm: '0 16px'
+            },
+            minHeight: {
+              xs: '56px',
+              sm: '64px'
+            }
           }}
         >
-          <Box>
+          <Box sx={{ display: 'flex', alignItems: 'center' }}>
             {/* Sidebar components */}
             <IconButton
               onClick={() => {
@@ -92,264 +99,64 @@ const Navbar = ({ brainRot, setBrainRot, isLoading, savedKbs, editing, setMetada
                 }
               }}
               onKeyDown={(e) => { e.preventDefault() }}
-              disabled={isLoading ? true : false}
-            >
-              {isLoading ? (<CircularProgress />) : (<DensityMediumIcon />)}
-            </IconButton>
-            <Drawer
-              open={openDrawer}
-              onClose={() => { setOpenDrawer(false) }}
-              PaperProps={{
-                sx: {
-                  background: 'rgba(4, 4, 4, 0.95)',
-                  backdropFilter: 'blur(10px)',
-                  borderRight: '1px solid rgba(255, 255, 255, 0.1)',
-                  padding: '24px 16px',
-                  overflowY: 'auto',
-                  '&::-webkit-scrollbar': {
-                    width: '8px',
-                  },
-                  '&::-webkit-scrollbar-track': {
-                    background: 'rgba(255, 255, 255, 0.05)',
-                  },
-                  '&::-webkit-scrollbar-thumb': {
-                    background: 'rgba(120, 85, 251, 0.3)',
-                    borderRadius: '4px',
-                    '&:hover': {
-                      background: 'rgba(120, 85, 251, 0.5)',
-                    },
-                  },
+              disabled={isLoading}
+              edge="start"
+              color="inherit"
+              aria-label="menu"
+              sx={{
+                padding: {
+                  xs: '8px',
+                  sm: '12px'
                 }
               }}
             >
-              <Box sx={{ width: 300 }}>
-                {/* Menu Header */}
-                <Typography
-                  variant="h6"
+              {isLoading ? (
+                <CircularProgress 
+                  size={24}
                   sx={{
-                    color: 'text.primary',
-                    fontWeight: 600,
-                    mb: 3,
-                    pl: 2
+                    color: 'white'
                   }}
-                >
-                  Menu
-                </Typography>
-
-                {/* Main Menu Items */}
-                <Box sx={{ mb: 3 }}>
-                <Button
-                    startIcon={<House size={20} />}
-                    sx={{
-                      width: '100%',
-                      justifyContent: 'flex-start',
-                      py: 1.5,
-                      px: 2,
-                      color: 'text.primary',
-                      textTransform: 'none',
-                      fontSize: '1rem',
-                      fontWeight: 500,
-                      '&:hover': {
-                        backgroundColor: 'rgba(120, 85, 251, 0.1)',
-                      }
-                    }}
-                    onClick={() => { navigate("/"); }}
-                  >
-                    Home
-                  </Button>
-
-                  <Button
-                    startIcon={<Info size={20} />}
-                    sx={{
-                      width: '100%',
-                      justifyContent: 'flex-start',
-                      py: 1.5,
-                      px: 2,
-                      color: 'text.primary',
-                      textTransform: 'none',
-                      fontSize: '1rem',
-                      fontWeight: 500,
-                      '&:hover': {
-                        backgroundColor: 'rgba(120, 85, 251, 0.1)',
-                      }
-                    }}
-                    onClick={() => { setOpenAbout(true) }}
-                  >
-                    About
-                  </Button>
-
-                  <Button
-                    startIcon={<BookOpen size={20} />}
-                    sx={{
-                      width: '100%',
-                      justifyContent: 'flex-start',
-                      py: 1.5,
-                      px: 2,
-                      color: 'text.primary',
-                      textTransform: 'none',
-                      fontSize: '1rem',
-                      fontWeight: 500,
-                      '&:hover': {
-                        backgroundColor: 'rgba(120, 85, 251, 0.1)',
-                      }
-                    }}
-                    onClick={() => { navigate('/instructions') }}
-                  >
-                    Instructions
-                  </Button>
-
-                  <Button
-                    startIcon={<Sparkles size={20} />}
-                    sx={{
-                      width: '100%',
-                      justifyContent: 'flex-start',
-                      py: 1.5,
-                      px: 2,
-                      color: brainRot ? '#7855fb' : 'text.primary',
-                      textTransform: 'none',
-                      fontSize: '1rem',
-                      fontWeight: 500,
-                      '&:hover': {
-                        backgroundColor: 'rgba(120, 85, 251, 0.1)',
-                      }
-                    }}
-                    onClick={() => { setBrainRot(!brainRot); }}
-                  >
-                    Funky mode {brainRot ? "✨" : ""}
-                  </Button>
-
-                  {/* <Button
-                    disabled={true} // disabled because causing bugs
-                    startIcon={<Gamepad size={20} />}
-                    sx={{
-                      width: '100%',
-                      justifyContent: 'flex-start',
-                      py: 1.5,
-                      px: 2,
-                      color: 'text.primary',
-                      textTransform: 'none',
-                      fontSize: '1rem',
-                      fontWeight: 500,
-                      '&:hover': {
-                        backgroundColor: 'rgba(120, 85, 251, 0.1)',
-                      }
-                    }}
-                    onClick={() => { navigate("/game") }}
-                  >
-                    Chrome Dino
-                  </Button> */}
-
-                  <Button
-                    disabled={savedKbs.length === 0}
-                    startIcon={<Trash2 size={20} />}
-                    sx={{
-                      width: '100%',
-                      justifyContent: 'flex-start',
-                      py: 1.5,
-                      px: 2,
-                      color: '#ff4d4d',
-                      textTransform: 'none',
-                      fontSize: '1rem',
-                      fontWeight: 500,
-                      '&:hover': {
-                        backgroundColor: 'rgba(255, 77, 77, 0.1)',
-                      }
-                    }}
-                    onClick={() => setConfirmModalOpen(true)}
-                  >
-                    Clear All
-                  </Button>
-                </Box>
-
-                <Divider sx={{
-                  backgroundColor: 'rgba(255, 255, 255, 0.1)',
-                  my: 2
-                }} />
-
-                {/* Previous Scripts Section */}
-                <Typography
-                  variant="subtitle2"
-                  sx={{
-                    color: 'text.secondary',
-                    fontWeight: 600,
-                    mb: 2,
-                    pl: 2
+                />
+              ) : (
+                <DensityMediumIcon 
+                  sx={{ 
+                    fontSize: {
+                      xs: 24,
+                      sm: 28
+                    }
                   }}
-                >
-                  Previous Scripts
-                </Typography>
+                />
+              )}
+            </IconButton>
 
-                <List sx={{
-                  maxHeight: 'calc(100vh - 400px)',
-                }}>
-                  {savedKbs.map((pastKb, idx) => (
-                    <ListItem
-                      key={idx}
-                      disablePadding
-                      sx={{ mb: 1 }}
-                    >
-                      <Button
-                        sx={{
-                          width: '100%',
-                          justifyContent: 'flex-start',
-                          py: 1.5,
-                          px: 2,
-                          color: 'text.secondary',
-                          textTransform: 'none',
-                          fontSize: '0.9rem',
-                          lineHeight: 1.4,
-                          textAlign: 'left',
-                          '&:hover': {
-                            backgroundColor: 'rgba(120, 85, 251, 0.1)',
-                            color: 'text.primary',
-                          }
-                        }}
-                        onClick={() => {
-                          const saved = getKBfromLocalStorage(idx);
-                          setMetadata({
-                            url: saved.url,
-                            kbId: saved.kbId,
-                            title: saved.title,
-                            timeGenerated: saved.getTimeGenerated(),
-                          })
-                          selectSavedKB(idx);
-                          navigate('/result', { state: { idx: idx } });
-                          setOpenDrawer(false);
-                        }}
-                      >
-                        <Box
-                          sx={{
-                            display: 'flex',
-                            flexDirection: 'column'
-                          }}
-                        >
-                          <Typography variant="subtitle2" sx={{ color: 'text.primary', mb: 0.5 }}>
-                            {pastKb.title}
-                          </Typography>
-                          <Typography variant="caption" sx={{ color: 'text.secondary' }}>
-                            {pastKb.kbId} • {formatDateTime(pastKb.getTimeGenerated())}
-                          </Typography>
-                          <Typography variant="caption" sx={{ color: 'text.secondary' }}>
-                            {pastKb.model}
-                          </Typography>
-                        </Box>
-                      </Button>
-                    </ListItem>
-                  ))}
-                </List>
-              </Box>
-            </Drawer>    
-        {/* Chiron framework button */}
+            {/* Chiron framework button */}
             <ChironButton 
               isLoading={isLoading}
               editing={editing}
               setErrorMessage={setErrorMessage}
               setErrorModalOpen={setErrorModalOpen}
               navigate={navigate}
+              sx={{
+                '& .button-text': {
+                  display: {
+                    xs: 'none',
+                    sm: 'block'
+                  }
+                }
+              }}
             />
           </Box>
 
-          <Box sx={{ display: 'flex', }}>
+          <Box 
+            sx={{ 
+              display: 'flex',
+              alignItems: 'center',
+              gap: {
+                xs: 1,
+                sm: 3
+              }
+            }}
+          >
             <Tooltip title="Instructions" arrow>
               <IconButton
                 onClick={() => {
@@ -365,11 +172,17 @@ const Navbar = ({ brainRot, setBrainRot, isLoading, savedKbs, editing, setMetada
                 }}
                 sx={{
                   color: 'white',
-                  mr: 3,
                   transition: 'all 0.2s ease-in-out',
                 }}
               >
-                <HelpOutlineIcon sx={{ fontSize: 40 }} /> {/* Increased from default size */}
+                <HelpOutlineIcon 
+                  sx={{ 
+                    fontSize: {
+                      xs: 28,
+                      sm: 40
+                    }
+                  }} 
+                />
               </IconButton>
             </Tooltip>
 
@@ -389,11 +202,253 @@ const Navbar = ({ brainRot, setBrainRot, isLoading, savedKbs, editing, setMetada
                 window.open("https://portal.nutanix.com/", '_blank').focus();
               }}
             >
-              <img src={ntxLogo} alt='Nutanix Logo' style={{ height: 20, width: 'auto' }} />
+              <Box
+                component="img"
+                src={ntxLogo}
+                alt='Nutanix Logo'
+                sx={{
+                  height: {
+                    xs: 14,
+                    sm: 20
+                  },
+                  width: 'auto',
+                  marginLeft: '4px'
+                }}
+              />
             </Box>
           </Box>
         </Toolbar>
       </AppBar>
+
+      {/* Drawer */}
+      <Drawer
+        open={openDrawer}
+        onClose={() => { setOpenDrawer(false) }}
+        PaperProps={{
+          sx: {
+            background: 'rgba(4, 4, 4, 0.95)',
+            backdropFilter: 'blur(10px)',
+            borderRight: '1px solid rgba(255, 255, 255, 0.1)',
+            padding: '24px 16px',
+            overflowY: 'auto',
+            '&::-webkit-scrollbar': {
+              width: '8px',
+            },
+            '&::-webkit-scrollbar-track': {
+              background: 'rgba(255, 255, 255, 0.05)',
+            },
+            '&::-webkit-scrollbar-thumb': {
+              background: 'rgba(120, 85, 251, 0.3)',
+              borderRadius: '4px',
+              '&:hover': {
+                background: 'rgba(120, 85, 251, 0.5)',
+              },
+            },
+          }
+        }}
+      >
+        <Box sx={{ width: {
+          xs: 250,
+          sm: 300
+        }}}>
+          {/* Menu Header */}
+          <Typography
+            variant="h6"
+            sx={{
+              color: 'text.primary',
+              fontWeight: 600,
+              mb: 3,
+              pl: 2
+            }}
+          >
+            Menu
+          </Typography>
+
+          {/* Main Menu Items */}
+          <Box sx={{ mb: 3 }}>
+            <Button
+              startIcon={<House size={20} />}
+              sx={{
+                width: '100%',
+                justifyContent: 'flex-start',
+                py: 1.5,
+                px: 2,
+                color: 'text.primary',
+                textTransform: 'none',
+                fontSize: '1rem',
+                fontWeight: 500,
+                '&:hover': {
+                  backgroundColor: 'rgba(120, 85, 251, 0.1)',
+                }
+              }}
+              onClick={() => { navigate("/"); }}
+            >
+              Home
+            </Button>
+
+            <Button
+              startIcon={<Info size={20} />}
+              sx={{
+                width: '100%',
+                justifyContent: 'flex-start',
+                py: 1.5,
+                px: 2,
+                color: 'text.primary',
+                textTransform: 'none',
+                fontSize: '1rem',
+                fontWeight: 500,
+                '&:hover': {
+                  backgroundColor: 'rgba(120, 85, 251, 0.1)',
+                }
+              }}
+              onClick={() => { 
+                setOpenDrawer(false);
+                setOpenAbout(true);
+              }}
+            >
+              About
+            </Button>
+
+            <Button
+              startIcon={<BookOpen size={20} />}
+              sx={{
+                width: '100%',
+                justifyContent: 'flex-start',
+                py: 1.5,
+                px: 2,
+                color: 'text.primary',
+                textTransform: 'none',
+                fontSize: '1rem',
+                fontWeight: 500,
+                '&:hover': {
+                  backgroundColor: 'rgba(120, 85, 251, 0.1)',
+                }
+              }}
+              onClick={() => { navigate('/instructions'); }}
+            >
+              Instructions
+            </Button>
+
+            <Button
+              startIcon={<Sparkles size={20} />}
+              sx={{
+                width: '100%',
+                justifyContent: 'flex-start',
+                py: 1.5,
+                px: 2,
+                color: brainRot ? '#7855fb' : 'text.primary',
+                textTransform: 'none',
+                fontSize: '1rem',
+                fontWeight: 500,
+                '&:hover': {
+                  backgroundColor: 'rgba(120, 85, 251, 0.1)',
+                }
+              }}
+              onClick={() => { setBrainRot(!brainRot); }}
+            >
+              Funky mode {brainRot ? "✨" : ""}
+            </Button>
+
+            <Button
+              disabled={savedKbs.length === 0}
+              startIcon={<Trash2 size={20} />}
+              sx={{
+                width: '100%',
+                justifyContent: 'flex-start',
+                py: 1.5,
+                px: 2,
+                color: '#ff4d4d',
+                textTransform: 'none',
+                fontSize: '1rem',
+                fontWeight: 500,
+                '&:hover': {
+                  backgroundColor: 'rgba(255, 77, 77, 0.1)',
+                }
+              }}
+              onClick={() => setConfirmModalOpen(true)}
+            >
+              Clear All
+            </Button>
+          </Box>
+
+          <Divider sx={{
+            backgroundColor: 'rgba(255, 255, 255, 0.1)',
+            my: 2
+          }} />
+
+          {/* Previous Scripts Section */}
+          <Typography
+            variant="subtitle2"
+            sx={{
+              color: 'text.secondary',
+              fontWeight: 600,
+              mb: 2,
+              pl: 2
+            }}
+          >
+            Previous Scripts
+          </Typography>
+
+          <List sx={{
+            maxHeight: 'calc(100vh - 400px)',
+          }}>
+            {savedKbs.map((pastKb, idx) => (
+              <ListItem
+                key={idx}
+                disablePadding
+                sx={{ mb: 1 }}
+              >
+                <Button
+                  sx={{
+                    width: '100%',
+                    justifyContent: 'flex-start',
+                    py: 1.5,
+                    px: 2,
+                    color: 'text.secondary',
+                    textTransform: 'none',
+                    fontSize: '0.9rem',
+                    lineHeight: 1.4,
+                    textAlign: 'left',
+                    '&:hover': {
+                      backgroundColor: 'rgba(120, 85, 251, 0.1)',
+                      color: 'text.primary',
+                    }
+                  }}
+                  onClick={() => {
+                    const saved = getKBfromLocalStorage(idx);
+                    setMetadata({
+                      url: saved.url,
+                      kbId: saved.kbId,
+                      title: saved.title,
+                      timeGenerated: saved.getTimeGenerated(),
+                    })
+                    selectSavedKB(idx);
+                    navigate('/result', { state: { idx: idx } });
+                  }}
+                >
+                  <Box
+                    sx={{
+                      display: 'flex',
+                      flexDirection: 'column'
+                    }}
+                  >
+                    <Typography variant="subtitle2" sx={{ color: 'text.primary', mb: 0.5 }}>
+                      {pastKb.title}
+                    </Typography>
+                    <Typography variant="caption" sx={{ color: 'text.secondary' }}>
+                      {pastKb.kbId} • {formatDateTime(pastKb.getTimeGenerated())}
+                    </Typography>
+                    <Typography variant="caption" sx={{ color: 'text.secondary' }}>
+                      {pastKb.model}
+                    </Typography>
+                  </Box>
+                </Button>
+              </ListItem>
+            ))}
+          </List>
+        </Box>
+      </Drawer>
+
       <Modal
         open={openAbout}
         onClose={() => setOpenAbout(false)}

@@ -1,8 +1,8 @@
 import React from 'react';
 import { Modal, Box, Typography, Button } from '@mui/material';
-import { AlertCircle } from 'lucide-react';
+import { AlertCircle, AlertTriangle } from 'lucide-react';
 
-const ErrorModal = ({ open, onClose, message }) => (
+const ErrorModal = ({ open, onClose, message, isWarning = false }) => (
   <Modal
     open={open}
     onClose={onClose}
@@ -26,7 +26,11 @@ const ErrorModal = ({ open, onClose, message }) => (
         gap: 2
       }}
     >
-      <AlertCircle size={32} color="#ff4d4d" />
+      {isWarning ? (
+        <AlertTriangle size={32} color="#ffd700" />
+      ) : (
+        <AlertCircle size={32} color="#ff4d4d" />
+      )}
       <Typography 
         variant="h6" 
         sx={{ 
@@ -35,13 +39,14 @@ const ErrorModal = ({ open, onClose, message }) => (
           fontWeight: 600
         }}
       >
-        Error
+        {isWarning ? 'Warning' : 'Error'}
       </Typography>
       <Typography 
         sx={{ 
           color: 'text.secondary',
           textAlign: 'center',
-          mb: 2
+          mb: 2,
+          whiteSpace: 'pre-line'
         }}
       >
         {message}

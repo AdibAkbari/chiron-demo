@@ -7,17 +7,20 @@ import ErrorModal from './ErrorModal';
 import Select from '@mui/material/Select';
 import { Tooltip } from '@mui/material';
 
+// Demo URL for the example
+const DEMO_URL = 'https://portal.nutanix.com/page/documents/kbs/details?targetId=kA0320000004H2NCAU';
+
 const InputBox = ({ models, onSubmitURL, onSubmitFile, setHttpErrorMsg }) => {
   const [modelIdx, setModelIdx] = useState(0);
   const handleModelChange = (event) => {
     setModelIdx(event.target.value);
   }
 
-  const [url, setUrl] = useState('');
+  const [url, setUrl] = useState(DEMO_URL);
   const [errorModalOpen, setErrorModalOpen] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
   const [error, setError] = useState(false);
-  const [expandedSection, setExpandedSection] = useState('public'); // 'public' or 'internal'
+  const [expandedSection, setExpandedSection] = useState('public');
   const urlPattern = /^https:\/\/portal\.nutanix\.com\//;
 
   const handleSubmitURL = (e) => {
@@ -36,6 +39,7 @@ const InputBox = ({ models, onSubmitURL, onSubmitFile, setHttpErrorMsg }) => {
     }
   };
 
+  // Rest of the component remains the same as in your original code
   const onDrop = useCallback((acceptedFiles) => {
     if (acceptedFiles.length == 0) {
       return;
@@ -46,7 +50,6 @@ const InputBox = ({ models, onSubmitURL, onSubmitFile, setHttpErrorMsg }) => {
     if (fname_split.length > 0) {
       if (fname_split.pop().toLowerCase() === "pdf") {
         if (acceptedFiles[0].size > 16777216) {
-          // This is more of an arbitrary restriction for performance rather than a hard limitation.
           setErrorMessage("File is greater than 16 Megabytes.");
           setErrorModalOpen(true);
         } else {
@@ -122,8 +125,16 @@ const InputBox = ({ models, onSubmitURL, onSubmitFile, setHttpErrorMsg }) => {
         sx={{
           display: 'flex',
           flexDirection: 'column',
-          width: '540px',
-          padding: '24px',
+          width: '90%',
+          maxWidth: '540px',
+          padding: {
+            xs: '16px',
+            sm: '24px'
+          },
+          margin: {
+            xs: '16px',
+            sm: 0
+          },
           background: 'rgba(4, 4, 4, 0.1)',
           backdropFilter: 'blur(5px)',
           borderRadius: '16px',
@@ -131,15 +142,23 @@ const InputBox = ({ models, onSubmitURL, onSubmitFile, setHttpErrorMsg }) => {
         }}
       >
         <Box>
-          <Box
-            sx={{
-              display: 'flex'
+          <Box 
+            sx={{ 
+              display: 'flex',
+              flexWrap: 'wrap', // Allow wrapping on very small screens
+              alignItems: 'center'
             }}
           >
             <Typography
               sx={{
-                paddingLeft: '15px',
-                paddingBottom: '15px',
+                paddingLeft: {
+                  xs: '8px',
+                  sm: '15px'
+                },
+                paddingBottom: {
+                  xs: '8px',
+                  sm: '15px'
+                },
                 paddingRight: '10px',
                 color: 'text.primary',
                 fontWeight: 600,
@@ -148,7 +167,7 @@ const InputBox = ({ models, onSubmitURL, onSubmitFile, setHttpErrorMsg }) => {
             >
               Choose your LLM
             </Typography>
-            <Tooltip title="All models are run locally on a Nutanix SRE lab">
+            <Tooltip title="Demo version - all models simulate the same response">
               <InfoIcon />
             </Tooltip>
           </Box>
@@ -159,34 +178,40 @@ const InputBox = ({ models, onSubmitURL, onSubmitFile, setHttpErrorMsg }) => {
               width: '100%'
             }}
           >
-            {models.map((model, index) => {
-              return (
-                <MenuItem
-                  value={index}
-                >
-                  {models[index].display_name + " - " + models[index].note}
-                </MenuItem>
-              )
-            })}
+            {models.map((model, index) => (
+              <MenuItem 
+                key={index} 
+                value={index}
+                sx={{
+                  whiteSpace: 'normal', // Allow text to wrap
+                  wordBreak: 'break-word'
+                }}
+              >
+                {model.display_name + " - " + model.note}
+              </MenuItem>
+            ))}
           </Select>
         </Box>
 
-        <Divider
-          sx={{
-            marginTop: '20px',
-            marginBottom: '10px'
-          }}
-        />
+        <Divider sx={{ 
+          marginTop: {
+            xs: '16px',
+            sm: '20px'
+          }, 
+          marginBottom: {
+            xs: '8px',
+            sm: '10px'
+          } 
+        }} />
 
-        {/* Public KB Section */}
         <SectionHeader 
           title="Enter URL"
           subtitle="Only Public KBs"
           isExpanded={expandedSection === 'public'}
           onClick={() => {
             setHttpErrorMsg("")
-            setExpandedSection('public')}
-          }
+            setExpandedSection('public')
+          }}
         />
         
         <Collapse in={expandedSection === 'public'}>
@@ -196,9 +221,18 @@ const InputBox = ({ models, onSubmitURL, onSubmitFile, setHttpErrorMsg }) => {
             sx={{
               display: 'flex',
               flexDirection: 'column',
-              gap: 2,
-              mt: 2,
-              mb: 2,
+              gap: {
+                xs: 1,
+                sm: 2
+              },
+              mt: {
+                xs: 1,
+                sm: 2
+              },
+              mb: {
+                xs: 1,
+                sm: 2
+              },
             }}
           >
             <TextField
@@ -256,7 +290,6 @@ const InputBox = ({ models, onSubmitURL, onSubmitFile, setHttpErrorMsg }) => {
           </Box>
         </Collapse>
 
-        {/* Internal KB Section */}
         <SectionHeader 
           title="Upload PDF"
           subtitle="All KBs and Confluence Articles"

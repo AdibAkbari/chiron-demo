@@ -37,7 +37,7 @@ function AboutModal() {
           lineHeight: 1.6
         }}
       >
-        This application was developed by a passionate team of SRE interns at Sydney, Australia on January 2025.
+        This application was developed by a passionate team of SRE interns at Sydney, Australia in January 2025.
       </Typography>
 
       <Divider sx={{ 
