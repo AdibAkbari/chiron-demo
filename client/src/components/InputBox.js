@@ -167,9 +167,23 @@ const InputBox = ({ models, onSubmitURL, onSubmitFile, setHttpErrorMsg }) => {
             >
               Choose your LLM
             </Typography>
-            <Tooltip title="Demo version - all models simulate the same response">
-              <InfoIcon />
-            </Tooltip>
+            <Box
+              sx={{
+                display: 'flex',
+                alignItems: 'center',
+                height: '100%',
+                mb: {
+                  xs: '8px',
+                  sm: '15px'
+                }
+              }}
+            >
+              <Tooltip 
+                title="Demo version - all models simulate the same response"
+              >
+                <InfoIcon size={20} />
+              </Tooltip>
+            </Box>
           </Box>
           <Select
             value={modelIdx}
