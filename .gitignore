@@ -1,0 +1,22 @@
+# Node
+node_modules/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+server/__pycache__/
+server/venv/
+venv/
+# Windows:
+server/Include/*
+server/Lib/*
+server/Scripts/*
+server/pyvenv.cfg
+
+# Environment variables
+.env
+.env.*
+
+# System files
+.DS_Store
