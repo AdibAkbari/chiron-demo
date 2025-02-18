@@ -22,7 +22,7 @@ const DEMO_MODELS = [
 ];
 
 const DEMO_METADATA = {
-  url: "https://portal.nutanix.com/example-kb-123",
+  url: "https://portal.nutanix.com/page/documents/kbs/details?targetId=kA0320000004H2NCAU",
   title: "Example KB Article",
 };
 
