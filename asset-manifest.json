@@ -1,7 +1,7 @@
 {
   "files": {
     "main.css": "/chiron-demo/static/css/main.380acd5a.css",
-    "main.js": "/chiron-demo/static/js/main.ca416807.js",
+    "main.js": "/chiron-demo/static/js/main.42f1dd5c.js",
     "static/js/6.0cdb3ff4.chunk.js": "/chiron-demo/static/js/6.0cdb3ff4.chunk.js",
     "static/js/488.17e6dda1.chunk.js": "/chiron-demo/static/js/488.17e6dda1.chunk.js",
     "static/media/background.mov": "/chiron-demo/static/media/background.dc00d96b39c740af253d.mov",
@@ -49,12 +49,12 @@
     "static/media/inter-vietnamese-400-normal.woff2": "/chiron-demo/static/media/inter-vietnamese-400-normal.44c9df135eec470b0ab6.woff2",
     "static/media/nutanix.svg": "/chiron-demo/static/media/nutanix.1e6eca83180cc239d8c1675ce424f9c8.svg",
     "main.380acd5a.css.map": "/chiron-demo/static/css/main.380acd5a.css.map",
-    "main.ca416807.js.map": "/chiron-demo/static/js/main.ca416807.js.map",
+    "main.42f1dd5c.js.map": "/chiron-demo/static/js/main.42f1dd5c.js.map",
     "6.0cdb3ff4.chunk.js.map": "/chiron-demo/static/js/6.0cdb3ff4.chunk.js.map",
     "488.17e6dda1.chunk.js.map": "/chiron-demo/static/js/488.17e6dda1.chunk.js.map"
   },
   "entrypoints": [
     "static/css/main.380acd5a.css",
-    "static/js/main.ca416807.js"
+    "static/js/main.42f1dd5c.js"
   ]
 }
